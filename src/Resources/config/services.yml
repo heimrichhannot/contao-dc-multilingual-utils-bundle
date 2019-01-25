@@ -1,0 +1,13 @@
+services:
+  _instanceof:
+    Contao\CoreBundle\Framework\FrameworkAwareInterface:
+      calls:
+      - ["setFramework", ["@contao.framework"]]
+    Symfony\Component\DependencyInjection\ContainerAwareInterface:
+      calls:
+      - ["setContainer", ["@service_container"]]
+
+  huh.dc_multilingual_utils.util.dc_multilingual_util:
+    class: HeimrichHannot\DcMultilingualUtilsBundle\Util\DcMultilingualUtil
+    public: true
+    autowire: true

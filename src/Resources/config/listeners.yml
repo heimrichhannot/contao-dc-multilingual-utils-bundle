@@ -1,0 +1,13 @@
+services:
+  _instanceof:
+    Contao\CoreBundle\Framework\FrameworkAwareInterface:
+      calls:
+      - ["setFramework", ["@contao.framework"]]
+    Symfony\Component\DependencyInjection\ContainerAwareInterface:
+      calls:
+      - ["setContainer", ["@service_container"]]
+
+  huh.dc_multilingual_utils.event_listener.data_container.content_listener:
+    class: HeimrichHannot\DcMultilingualUtilsBundle\EventListener\DataContainer\ContentListener
+    public: true
+    autowire: true
