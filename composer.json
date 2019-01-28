@@ -22,7 +22,7 @@
   },
   "autoload": {
     "psr-4": {
-      "HeimrichHannot\\DcMultilingualBundle\\": "src/",
+      "HeimrichHannot\\DcMultilingualUtilsBundle\\": "src/",
       "Contao\\": "src/Contao/",
       "Terminal42\\DcMultilingualBundle\\Model\\": "src/Terminal42/"
     },
@@ -38,7 +38,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "HeimrichHannot\\DcMultilingualBundle\\Test\\": "tests/"
+      "HeimrichHannot\\DcMultilingualUtilsBundle\\Test\\": "tests/"
     }
   },
   "config": {
