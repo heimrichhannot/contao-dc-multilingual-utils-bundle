@@ -65,12 +65,15 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         }
     }
 
-    public function addDcMultilingualTranslatableAliasEval(string $table, array &$fieldDca, string $translatableFor = '*', string $aliasField = 'title')
+    public function addDcMultilingualTranslatableAliasEval(array &$fieldDca, string $translatableFor = '*', string $aliasField = 'title', bool $skipRemoveSaveCallbacks = false)
     {
         $fieldDca['eval']['translatableFor']        = $translatableFor;
         $fieldDca['eval']['isMultilingualAlias']    = true;
         $fieldDca['eval']['generateAliasFromField'] = $aliasField;
 
-        $this->container->get('huh.utils.array')->removeValue([$table, 'generateAlias'], $fieldDca['save_callback']);
+        if (!$skipRemoveSaveCallbacks)
+        {
+            unset($fieldDca['save_callback']);
+        }
     }
 }
