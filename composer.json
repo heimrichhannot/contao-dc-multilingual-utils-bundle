@@ -38,14 +38,14 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "HeimrichHannot\\AmpBundle\\Test\\": "tests/"
+      "HeimrichHannot\\DcMultilingualBundle\\Test\\": "tests/"
     }
   },
   "config": {
     "preferred-install": "dist"
   },
   "extra": {
-    "contao-manager-plugin": "HeimrichHannot\\DcMultilingualBundle\\ContaoManager\\Plugin",
+    "contao-manager-plugin": "HeimrichHannot\\DcMultilingualUtilsBundle\\ContaoManager\\Plugin",
     "foxy": true
   }
 }
