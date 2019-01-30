@@ -50,8 +50,14 @@ class Multilingual extends \Model
         $objDatabase = \Database::getInstance();
         $arrFields = $objDatabase->getFieldNames(static::$strTable);
 
-        // The model is in the registry
-        if (\Model\Registry::getInstance()->isRegistered($this))
+        // Fix: check if record already exists in db
+        if ($this->{static::$strPk})
+        {
+            $objExistingRecord = $objDatabase->prepare("SELECT * FROM " . static::$strTable . " WHERE " . \Database::quoteIdentifier(static::$strPk) . "=?")->execute($this->{static::$strPk});
+        }
+
+        // The model is in the registry (Fix: also check for db since model instances aren't saved to the registry)
+        if (\Model\Registry::getInstance()->isRegistered($this) || $objExistingRecord && $objExistingRecord->numRows > 0)
         {
             $arrSet = array();
             $arrRow = $this->row();
