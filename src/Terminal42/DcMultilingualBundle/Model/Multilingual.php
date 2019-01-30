@@ -29,6 +29,116 @@ class Multilingual extends \Model
     }
 
     /**
+     * Overridden in order to allow saving using clone
+     *
+     * @return $this|\Model
+     */
+    public function save()
+    {
+        // Deprecated call
+        if (\count(\func_get_args()))
+        {
+            throw new \InvalidArgumentException('The $blnForceInsert argument has been removed (see system/docs/UPGRADE.md)');
+        }
+
+        // Fix: allow saving
+//        if ($this->blnPreventSaving)
+//        {
+//            throw new \RuntimeException('The model instance has been detached and cannot be saved');
+//        }
+
+        $objDatabase = \Database::getInstance();
+        $arrFields = $objDatabase->getFieldNames(static::$strTable);
+
+        // The model is in the registry
+        if (\Model\Registry::getInstance()->isRegistered($this))
+        {
+            $arrSet = array();
+            $arrRow = $this->row();
+
+            // Only update modified fields
+            foreach ($this->arrModified as $k=>$v)
+            {
+                // Only set fields that exist in the DB
+                if (\in_array($k, $arrFields))
+                {
+                    $arrSet[$k] = $arrRow[$k];
+                }
+            }
+
+            $arrSet = $this->preSave($arrSet);
+
+            // No modified fiels
+            if (empty($arrSet))
+            {
+                return $this;
+            }
+
+            $intPk = $this->{static::$strPk};
+
+            // Track primary key changes
+            if (isset($this->arrModified[static::$strPk]))
+            {
+                $intPk = $this->arrModified[static::$strPk];
+            }
+
+            if ($intPk === null)
+            {
+                throw new \RuntimeException('The primary key has not been set');
+            }
+
+            // Update the row
+            $objDatabase->prepare("UPDATE " . static::$strTable . " %s WHERE " . \Database::quoteIdentifier(static::$strPk) . "=?")
+                ->set($arrSet)
+                ->execute($intPk);
+
+            $this->postSave(self::UPDATE);
+            $this->arrModified = array(); // reset after postSave()
+        }
+
+        // The model is not yet in the registry
+        else
+        {
+            $arrSet = $this->row();
+
+            // Remove fields that do not exist in the DB
+            foreach ($arrSet as $k=>$v)
+            {
+                if (!\in_array($k, $arrFields))
+                {
+                    unset($arrSet[$k]);
+                }
+            }
+
+            $arrSet = $this->preSave($arrSet);
+
+            // No modified fiels
+            if (empty($arrSet))
+            {
+                return $this;
+            }
+
+            // Insert a new row
+            $stmt = $objDatabase->prepare("INSERT INTO " . static::$strTable . " %s")
+                ->set($arrSet)
+                ->execute();
+
+            if (static::$strPk == 'id')
+            {
+                $this->id = $stmt->insertId;
+            }
+
+            $this->postSave(self::INSERT);
+            $this->arrModified = array(); // reset after postSave()
+
+            // Fix: Skip storing to registry as this would break model retrieval using DC_Multilingual joins
+//            \Model\Registry::getInstance()->register($this);
+        }
+
+        return $this;
+    }
+
+    /**
      * Returns the ID of the fallback language.
      */
     public function getLanguageId()
