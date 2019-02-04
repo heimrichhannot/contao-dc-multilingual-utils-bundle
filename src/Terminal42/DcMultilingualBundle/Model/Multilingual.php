@@ -36,8 +36,7 @@ class Multilingual extends \Model
     public function save()
     {
         // Deprecated call
-        if (\count(\func_get_args()))
-        {
+        if (\count(\func_get_args())) {
             throw new \InvalidArgumentException('The $blnForceInsert argument has been removed (see system/docs/UPGRADE.md)');
         }
 
@@ -48,26 +47,22 @@ class Multilingual extends \Model
 //        }
 
         $objDatabase = \Database::getInstance();
-        $arrFields = $objDatabase->getFieldNames(static::$strTable);
+        $arrFields   = $objDatabase->getFieldNames(static::$strTable);
 
         // Fix: check if record already exists in db
-        if ($this->{static::$strPk})
-        {
-            $objExistingRecord = $objDatabase->prepare("SELECT * FROM " . static::$strTable . " WHERE " . \Database::quoteIdentifier(static::$strPk) . "=?")->execute($this->{static::$strPk});
+        if ($this->{static::$strPk}) {
+            $objExistingRecord = $objDatabase->prepare("SELECT * FROM ".static::$strTable." WHERE ".\Database::quoteIdentifier(static::$strPk)."=?")->execute($this->{static::$strPk});
         }
 
         // The model is in the registry (Fix: also check for db since model instances aren't saved to the registry)
-        if (\Model\Registry::getInstance()->isRegistered($this) || $objExistingRecord && $objExistingRecord->numRows > 0)
-        {
-            $arrSet = array();
+        if (\Model\Registry::getInstance()->isRegistered($this) || $objExistingRecord && $objExistingRecord->numRows > 0) {
+            $arrSet = [];
             $arrRow = $this->row();
 
             // Only update modified fields
-            foreach ($this->arrModified as $k=>$v)
-            {
+            foreach ($this->arrModified as $k => $v) {
                 // Only set fields that exist in the DB
-                if (\in_array($k, $arrFields))
-                {
+                if (\in_array($k, $arrFields)) {
                     $arrSet[$k] = $arrRow[$k];
                 }
             }
@@ -75,43 +70,33 @@ class Multilingual extends \Model
             $arrSet = $this->preSave($arrSet);
 
             // No modified fiels
-            if (empty($arrSet))
-            {
+            if (empty($arrSet)) {
                 return $this;
             }
 
             $intPk = $this->{static::$strPk};
 
             // Track primary key changes
-            if (isset($this->arrModified[static::$strPk]))
-            {
+            if (isset($this->arrModified[static::$strPk])) {
                 $intPk = $this->arrModified[static::$strPk];
             }
 
-            if ($intPk === null)
-            {
+            if ($intPk === null) {
                 throw new \RuntimeException('The primary key has not been set');
             }
 
             // Update the row
-            $objDatabase->prepare("UPDATE " . static::$strTable . " %s WHERE " . \Database::quoteIdentifier(static::$strPk) . "=?")
-                ->set($arrSet)
-                ->execute($intPk);
+            $objDatabase->prepare("UPDATE ".static::$strTable." %s WHERE ".\Database::quoteIdentifier(static::$strPk)."=?")->set($arrSet)->execute($intPk);
 
             $this->postSave(self::UPDATE);
-            $this->arrModified = array(); // reset after postSave()
-        }
-
-        // The model is not yet in the registry
-        else
-        {
+            $this->arrModified = []; // reset after postSave()
+        } // The model is not yet in the registry
+        else {
             $arrSet = $this->row();
 
             // Remove fields that do not exist in the DB
-            foreach ($arrSet as $k=>$v)
-            {
-                if (!\in_array($k, $arrFields))
-                {
+            foreach ($arrSet as $k => $v) {
+                if (!\in_array($k, $arrFields)) {
                     unset($arrSet[$k]);
                 }
             }
@@ -119,23 +104,19 @@ class Multilingual extends \Model
             $arrSet = $this->preSave($arrSet);
 
             // No modified fiels
-            if (empty($arrSet))
-            {
+            if (empty($arrSet)) {
                 return $this;
             }
 
             // Insert a new row
-            $stmt = $objDatabase->prepare("INSERT INTO " . static::$strTable . " %s")
-                ->set($arrSet)
-                ->execute();
+            $stmt = $objDatabase->prepare("INSERT INTO ".static::$strTable." %s")->set($arrSet)->execute();
 
-            if (static::$strPk == 'id')
-            {
+            if (static::$strPk == 'id') {
                 $this->id = $stmt->insertId;
             }
 
             $this->postSave(self::INSERT);
-            $this->arrModified = array(); // reset after postSave()
+            $this->arrModified = []; // reset after postSave()
 
             // Fix: Skip storing to registry as this would break model retrieval using DC_Multilingual joins
 //            \Model\Registry::getInstance()->register($this);
@@ -205,10 +186,11 @@ class Multilingual extends \Model
      */
     public static function findByAlias($alias, $aliasColumnName = 'alias', $options = [])
     {
-        $options = array_merge([
-                'limit' => 1,
+        $options = array_merge(
+            [
+                'limit'  => 1,
                 'column' => ["t1.$aliasColumnName=?"],
-                'value' => [$alias],
+                'value'  => [$alias],
                 'return' => 'Model',
             ],
             $options
@@ -228,10 +210,11 @@ class Multilingual extends \Model
      */
     public static function findByMultilingualAlias($alias, $aliasColumnName = 'alias', $options = [])
     {
-        $options = array_merge([
-                'limit' => 1,
+        $options = array_merge(
+            [
+                'limit'  => 1,
                 'column' => ["(t1.$aliasColumnName=? OR t2.$aliasColumnName=?)"],
-                'value' => [$alias, $alias],
+                'value'  => [$alias, $alias],
                 'return' => 'Model',
             ],
             $options
@@ -335,11 +318,13 @@ class Multilingual extends \Model
      */
     protected static function applyOptionsToQueryBuilder(QueryBuilder $qb, array $options)
     {
+        $from = $qb->getQueryPart('from')[0];
+
         // Columns
         if (null !== $options['column']) {
             if (is_array($options['column'])) {
                 foreach ($options['column'] as $column) {
-                    $qb->andWhere($column);
+                    $qb->andWhere(static::replaceTableNameWithAlias($column, $from));
                 }
             } else {
                 // Default is likely t1
@@ -349,17 +334,17 @@ class Multilingual extends \Model
 
         // Group by
         if (null !== $options['group']) {
-            $qb->groupBy($options['group']);
+            $qb->groupBy(static::replaceTableNameWithAlias($options['group'], $from));
         }
 
         // Having
         if (null !== $options['having']) {
-            $qb->having($options['having']);
+            $qb->having(static::replaceTableNameWithAlias($options['having'], $from));
         }
 
         // Order by
         if (null !== $options['order']) {
-            $qb->add('orderBy', $options['order']);
+            $qb->add('orderBy', static::replaceTableNameWithAlias($options['order'], $from));
         }
     }
 
@@ -445,5 +430,14 @@ class Multilingual extends \Model
             $loader = new \DcaLoader(static::getTable());
             $loader->load();
         }
+    }
+
+
+    protected static function replaceTableNameWithAlias($column, array $from)
+    {
+        $table = $from['table'];
+        $alias = $from['alias'];
+
+        return preg_replace("/$table./", "$alias.", $column);
     }
 }
