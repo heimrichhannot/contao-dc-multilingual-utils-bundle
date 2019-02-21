@@ -102,8 +102,9 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         }
 
         // add the callback
-        $dca['config']['onload_callback'][] = function(DataContainer $dc) use (&$dca, $options, $publishedField, $skipStartStop, $startField, $stopField) {
-            $sessionKey = 'dc_multilingual:'.$dc->table.':'.$dc->id;
+        if ($this->container->get('huh.utils.container')->isBackend() && ($id = \Input::get('id')))
+        {
+            $sessionKey = 'dc_multilingual:'.$table.':'.$id;
 
             /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $objSessionBag */
             $objSessionBag = $this->container->get('session')->getBag('contao_backend');
@@ -131,21 +132,22 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
             /**
              * Fields
              */
-            $dca['fields'] += $this->getPublishFields(true, $options);
-        };
+            foreach ($this->getPublishFields(true, $options) as $field => $data)
+            {
+                $dca['fields'][$field] = $data;
+            }
+        }
     }
 
     public function getPublishFields(bool $addInputTypes = false, array $options = [])
     {
-        System::loadLanguageFile('default', null, true);
-
         $publishedField = $options['langPublished'] ?? 'langPublished';
         $startField = $options['langPublished'] ?? 'langStart';
         $stopField = $options['langPublished'] ?? 'langStop';
         $skipStartStop = $options['skipStartStop'] ?? false;
         $translatableFor = $options['translatableFor'] ?? '*';
 
-        if ($addInputTypes)
+        if (!$addInputTypes)
         {
             $fields = [
                 $publishedField   => [
