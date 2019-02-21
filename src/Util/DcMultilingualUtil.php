@@ -10,6 +10,8 @@ namespace HeimrichHannot\DcMultilingualUtilsBundle\Util;
 
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
+use Contao\DataContainer;
+use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -74,6 +76,131 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         if (!$skipRemoveSaveCallbacks)
         {
             unset($fieldDca['save_callback']);
+        }
+    }
+
+    public function addPublishFieldsFor(string $table, array $options = [])
+    {
+        $this->container->get('huh.utils.dca')->loadDc($table);
+
+        $dca = &$GLOBALS['TL_DCA'][$table];
+
+        $publishedField = $options['langPublished'] ?? 'langPublished';
+        $startField = $options['langPublished'] ?? 'langStart';
+        $stopField = $options['langPublished'] ?? 'langStop';
+        $skipStartStop = $options['skipStartStop'] ?? false;
+
+        // add the fields for the install tool
+        $dca['fields'] += $this->getPublishFields(false, $options);
+
+        // config
+        $dca['config']['langPublished'] = $publishedField;
+
+        if (!$skipStartStop) {
+            $dca['config']['langStart'] = $startField;
+            $dca['config']['langStop']  = $stopField;
+        }
+
+        // add the callback
+        $dca['config']['onload_callback'][] = function(DataContainer $dc) use (&$dca, $options, $publishedField, $skipStartStop, $startField, $stopField) {
+            $sessionKey = 'dc_multilingual:'.$dc->table.':'.$dc->id;
+
+            /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $objSessionBag */
+            $objSessionBag = $this->container->get('session')->getBag('contao_backend');
+
+            $language = $objSessionBag->get($sessionKey);
+
+            if (!$language)
+            {
+                return;
+            }
+
+            if (!$skipStartStop)
+            {
+                /**
+                 * Palettes
+                 */
+                $dca['palettes']['__selector__'][] = $publishedField;
+
+                /**
+                 * Subpalettes
+                 */
+                $dca['subpalettes'][$publishedField] = "$startField,$stopField";
+            }
+
+            /**
+             * Fields
+             */
+            $dca['fields'] += $this->getPublishFields(true, $options);
+        };
+    }
+
+    public function getPublishFields(bool $addInputTypes = false, array $options = [])
+    {
+        System::loadLanguageFile('default', null, true);
+
+        $publishedField = $options['langPublished'] ?? 'langPublished';
+        $startField = $options['langPublished'] ?? 'langStart';
+        $stopField = $options['langPublished'] ?? 'langStop';
+        $skipStartStop = $options['skipStartStop'] ?? false;
+        $translatableFor = $options['translatableFor'] ?? '*';
+
+        if ($addInputTypes)
+        {
+            $fields = [
+                $publishedField   => [
+                    'sql'       => "char(1) NOT NULL default ''"
+                ]
+            ];
+
+            if (!$skipStartStop)
+            {
+                $fields += [
+                    $startField       => [
+                        'sql'       => "varchar(10) NOT NULL default ''"
+                    ],
+                    $stopField        => [
+                        'sql'       => "varchar(10) NOT NULL default ''"
+                    ],
+                ];
+            }
+
+            return $fields;
+        }
+        else
+        {
+            $fields = [
+                $publishedField   => [
+                    'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langPublished'],
+                    'exclude'   => true,
+                    'filter'    => true,
+                    'inputType' => 'checkbox',
+                    'eval'      => ['doNotCopy' => true, 'submitOnChange' => !$skipStartStop, 'translatableFor' => $translatableFor],
+                    'sql'       => "char(1) NOT NULL default ''"
+                ]
+            ];
+
+            if (!$skipStartStop)
+            {
+                $fields += [
+                    $startField       => [
+                        'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langStart'],
+                        'exclude'   => true,
+                        'inputType' => 'text',
+                        'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard', 'translatableFor' => $translatableFor],
+                        'sql'       => "varchar(10) NOT NULL default ''"
+                    ],
+                    $stopField        => [
+                        'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langStop'],
+                        'exclude'   => true,
+                        'inputType' => 'text',
+                        'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard', 'translatableFor' => $translatableFor],
+                        'sql'       => "varchar(10) NOT NULL default ''"
+                    ],
+                ];
+            }
+
+            return $fields;
         }
     }
 }

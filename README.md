@@ -47,8 +47,6 @@ System::getContainer()->get('huh.utils.dca')->addDcMultilingualSupport(
 );
 ```
 
-### Get tl_content
-
 ### Notes on overridden classes
 
 For generating content elements which respect the multilanguage records created using DC_Multilingual in the backend,
