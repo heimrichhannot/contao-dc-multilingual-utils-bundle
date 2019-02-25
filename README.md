@@ -11,12 +11,13 @@ This bundle offers functionality concerning [terminal42/contao-DC_Multilingual](
 ## Installation
 
 1. Install via composer: `composer require heimrichhannot/contao-dc-multilingual-utils-bundle`.
-2. Activate `DC_Multilingual` support for `tl_content`:
+2. Activate `DC_Multilingual` support for `tl_content` (not optional):
 
 ```
-// see below for a full reference of addDcMultilingualSupport()
+// This is typically placed in your project bundle tl_content.php
+// See below for a full reference of addDcMultilingualSupport()
 
-System::getContainer()->get('huh.utils.dca')->addDcMultilingualSupport(
+System::getContainer()->get('huh.dc_multilingual_utils.util.dc_multilingual_util')->addDcMultilingualSupport(
     'tl_content',
     ['de', 'en', 'pl'],
     'de',
@@ -34,7 +35,7 @@ System::getContainer()->get('huh.utils.dca')->addDcMultilingualSupport(
 Simply call the following code in your DCA file:
 
 ```
-System::getContainer()->get('huh.utils.dca')->addDcMultilingualSupport(
+System::getContainer()->get('huh.dc_multilingual_utils.util.dc_multilingual_util')->addDcMultilingualSupport(
     'tl_calendar_events', // table name
     ['de', 'en', 'pl'], // supported languages
     'de', // fallback language
