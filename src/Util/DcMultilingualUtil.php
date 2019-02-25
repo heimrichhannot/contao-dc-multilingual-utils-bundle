@@ -20,6 +20,11 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
     use FrameworkAwareTrait;
     use ContainerAwareTrait;
 
+    const ADJUST_TIME_SERVICES = [
+        'tl_news' => 'huh.dc_multilingual_utils.data_container.news',
+        'tl_calendar_events' => 'huh.dc_multilingual_utils.data_container.calendar_events',
+    ];
+
     /**
      * Adds terminal42/dc_multilingual support for a given data container.
      *
@@ -64,6 +69,23 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
             }
 
             $dca['fields'][$field]['eval']['translatableFor'] = $translatableFor;
+        }
+
+        if (in_array($table, ['tl_news', 'tl_calendar_events']))
+        {
+            foreach ($dca['config']['onsubmit_callback'] as $key => $callback)
+            {
+                if (!is_array($callback))
+                {
+                    continue;
+                }
+                if (isset($callback[0], $callback[1]) && $callback[0] === $table && $callback[1] === 'adjustTime')
+                {
+                    unset($dca['config']['onsubmit_callback'][$key]);
+                    $dca['config']['onsubmit_callback']['huh.dc_multilingual_utils.adjustTime'] = [static::ADJUST_TIME_SERVICES[$table] ,'adjustTime'];
+                    break;
+                }
+            }
         }
     }
 

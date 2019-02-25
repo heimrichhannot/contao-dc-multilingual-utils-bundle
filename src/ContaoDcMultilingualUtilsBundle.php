@@ -8,16 +8,8 @@
 
 namespace HeimrichHannot\DcMultilingualUtilsBundle;
 
-use HeimrichHannot\DcMultilingualUtilsBundle\DependencyInjection\DcMultilingualUtilsExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class ContaoDcMultilingualUtilsBundle extends Bundle
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getContainerExtension()
-    {
-        return new DcMultilingualUtilsExtension();
-    }
 }
