@@ -116,18 +116,7 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
                 return;
             }
 
-            if (!$skipStartStop)
-            {
-                /**
-                 * Palettes
-                 */
-                $dca['palettes']['__selector__'][] = $publishedField;
-
-                /**
-                 * Subpalettes
-                 */
-                $dca['subpalettes'][$publishedField] = "$startField,$stopField";
-            }
+            // subpalettes aren't working with dc_multilingual atm
 
             /**
              * Fields
@@ -177,7 +166,7 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
                     'exclude'   => true,
                     'filter'    => true,
                     'inputType' => 'checkbox',
-                    'eval'      => ['doNotCopy' => true, 'submitOnChange' => !$skipStartStop, 'translatableFor' => $translatableFor],
+                    'eval'      => ['doNotCopy' => true, 'translatableFor' => $translatableFor, 'tl_class' => 'w50'],
                     'sql'       => "char(1) NOT NULL default ''"
                 ]
             ];
@@ -189,14 +178,14 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
                         'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langStart'],
                         'exclude'   => true,
                         'inputType' => 'text',
-                        'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard', 'translatableFor' => $translatableFor],
+                        'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 clr', 'translatableFor' => $translatableFor],
                         'sql'       => "varchar(10) NOT NULL default ''"
                     ],
                     $stopField        => [
                         'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langStop'],
                         'exclude'   => true,
                         'inputType' => 'text',
-                        'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard', 'translatableFor' => $translatableFor],
+                        'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50', 'translatableFor' => $translatableFor],
                         'sql'       => "varchar(10) NOT NULL default ''"
                     ],
                 ];
