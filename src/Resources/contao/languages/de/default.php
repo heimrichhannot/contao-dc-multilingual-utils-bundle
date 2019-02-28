@@ -1,6 +1,6 @@
 <?php
 
-$lang = $GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils'];
+$lang = &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils'];
 
 /**
  * Fields
