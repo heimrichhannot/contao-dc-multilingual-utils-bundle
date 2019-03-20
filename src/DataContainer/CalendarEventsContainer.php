@@ -24,7 +24,7 @@ class CalendarEventsContainer
      *
      * @param DC_Multilingual $dc
      */
-    public function adjustTime(DC_Multilingual $dc)
+    public function adjustTime($dc)
     {
         // Return if there is no active record (override all)
         if (!$dc->activeRecord)
@@ -33,7 +33,8 @@ class CalendarEventsContainer
         }
 
         $parentRecord = $dc->activeRecord;
-        if ($dc->getCurrentLanguage() !== '' && $dc->getCurrentLanguage() !== $dc->getFallbackLanguage())
+
+        if ($dc instanceof DC_Multilingual && $dc->getCurrentLanguage() !== '' && $dc->getCurrentLanguage() !== $dc->getFallbackLanguage())
         {
             $parentRecord = CalendarEventsModel::findByPk($parentRecord->{$dc->getPidColumn()});
         }
