@@ -124,7 +124,7 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         }
 
         // add the callback
-        if ($this->container->get('huh.utils.container')->isBackend() && ($id = \Input::get('id')))
+        if ($this->container->get('huh.utils.container')->isBackend() && ($id = $this->container->get('huh.request')->getGet('id')))
         {
             $sessionKey = 'dc_multilingual:'.$table.':'.$id;
 
@@ -162,7 +162,9 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         {
             $fields = [
                 $publishedField   => [
-                    'sql'       => "char(1) NOT NULL default ''"
+                    'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langPublished'],
+                    'exclude'   => true,
+                    'sql'       => "char(1) NOT NULL default ''",
                 ]
             ];
 
@@ -170,9 +172,13 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
             {
                 $fields += [
                     $startField       => [
+                        'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langStart'],
+                        'exclude'   => true,
                         'sql'       => "varchar(10) NOT NULL default ''"
                     ],
                     $stopField        => [
+                        'label'     => &$GLOBALS['TL_LANG']['MSC']['dcMultilingualUtils']['langStop'],
+                        'exclude'   => true,
                         'sql'       => "varchar(10) NOT NULL default ''"
                     ],
                 ];
@@ -188,7 +194,7 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
                     'exclude'   => true,
                     'filter'    => true,
                     'inputType' => 'checkbox',
-                    'eval'      => ['doNotCopy' => true, 'translatableFor' => $translatableFor, 'tl_class' => 'w50'],
+                    'eval'      => ['doNotCopy' => true, 'translatableFor' => $translatableFor, 'tl_class' => 'w50 clr'],
                     'sql'       => "char(1) NOT NULL default ''"
                 ]
             ];

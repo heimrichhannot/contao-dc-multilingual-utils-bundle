@@ -6,7 +6,8 @@
   "require": {
     "php": "^7.1",
     "contao/core-bundle": "4.4.*",
-    "terminal42/dc_multilingual": "^3.0"
+    "terminal42/dc_multilingual": "^3.0",
+    "heimrichhannnot/contao-utils-bundle": "^2.84"
   },
   "require-dev": {
     "contao/test-case": "1.1.*",
