@@ -11,6 +11,7 @@
 
 namespace Terminal42\DcMultilingualBundle\Model;
 
+use Contao\Database;
 use Contao\Model;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Terminal42\DcMultilingualBundle\QueryBuilder\MultilingualQueryBuilderFactoryInterface;
@@ -187,11 +188,10 @@ class Multilingual extends Model
      */
     public static function findByAlias($alias, $aliasColumnName = 'alias', $options = [])
     {
-        $options = array_merge(
-            [
-                'limit'  => 1,
+        $options = array_merge([
+                'limit' => 1,
                 'column' => ["t1.$aliasColumnName=?"],
-                'value'  => [$alias],
+                'value' => [$alias],
                 'return' => 'Model',
             ],
             $options
@@ -211,11 +211,10 @@ class Multilingual extends Model
      */
     public static function findByMultilingualAlias($alias, $aliasColumnName = 'alias', $options = [])
     {
-        $options = array_merge(
-            [
-                'limit'  => 1,
+        $options = array_merge([
+                'limit' => 1,
                 'column' => ["(t1.$aliasColumnName=? OR t2.$aliasColumnName=?)"],
-                'value'  => [$alias, $alias],
+                'value' => [$alias, $alias],
                 'return' => 'Model',
             ],
             $options
@@ -233,8 +232,8 @@ class Multilingual extends Model
     {
         static::ensureDataContainerIsLoaded();
 
-        if ($GLOBALS['TL_DCA'][static::getTable()]['config']['langColumn']) {
-            return $GLOBALS['TL_DCA'][static::getTable()]['config']['langColumn'];
+        if ($GLOBALS['TL_DCA'][static::getTable()]['config']['langColumnName']) {
+            return $GLOBALS['TL_DCA'][static::getTable()]['config']['langColumnName'];
         }
 
         return 'language';
@@ -375,11 +374,10 @@ class Multilingual extends Model
      */
     protected static function getRegularFields()
     {
-        $sqlFields = \Database::getInstance()->getFieldNames(static::getTable());
+        $extractor    = \DcaExtractor::getInstance(static::getTable());
+        $tableColumns = Database::getInstance()->getFieldNames(static::getTable());
 
-        $extractor = \DcaExtractor::getInstance(static::getTable());
-
-        return array_intersect($sqlFields, array_keys($extractor->getFields()));
+        return array_intersect($tableColumns, array_keys($extractor->getFields()));
     }
 
     /**
@@ -389,14 +387,13 @@ class Multilingual extends Model
      */
     protected static function getTranslatableFields()
     {
-        $sqlFields = \Database::getInstance()->getFieldNames(static::getTable());
-
         static::ensureDataContainerIsLoaded();
 
-        $fields = [];
+        $fields       = [];
+        $tableColumns = Database::getInstance()->getFieldNames(static::getTable());
 
         foreach ($GLOBALS['TL_DCA'][static::getTable()]['fields'] as $field => $data) {
-            if (!isset($data['eval']['translatableFor']) || !in_array($field, $sqlFields)) {
+            if (!isset($data['eval']['translatableFor']) || !in_array($field, $tableColumns, true)) {
                 continue;
             }
 
@@ -439,6 +436,6 @@ class Multilingual extends Model
         $table = $from['table'];
         $alias = $from['alias'];
 
-        return preg_replace("/$table./", "$alias.", $column);
+        return preg_replace("/$table\./", "$alias.", $column);
     }
 }
