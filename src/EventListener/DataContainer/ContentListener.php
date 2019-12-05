@@ -10,6 +10,8 @@ namespace HeimrichHannot\DcMultilingualUtilsBundle\EventListener\DataContainer;
 
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
+use Contao\Database;
+use MadeYourDay\RockSolidCustomElements\CustomElements;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -57,5 +59,45 @@ class ContentListener implements FrameworkAwareInterface, ContainerAwareInterfac
                 $data['eval']['translatableFor'] = $translatableFor;
             }
         }
+    }
+
+    public function prepareRsceData($row, $buffer, $element)
+    {
+        if ($GLOBALS['TL_DCA']['tl_content']['config']['fallbackLang'] === $GLOBALS['TL_LANGUAGE']) {
+            return $buffer;
+        }
+
+        $langPid = $GLOBALS['TL_DCA']['tl_content']['config']['langPid'] ?? 'langPid';
+
+        $rsceConfig = CustomElements::getConfigByType($element->type);
+
+        if (!is_array($rsceConfig) || empty($rsceConfig)) {
+            return $buffer;
+        }
+
+        $translatedElement = Database::getInstance()->prepare('SELECT rsce_data FROM tl_content WHERE tl_content.' . $langPid . '=? AND tl_content.language=?')->execute($element->id, $GLOBALS['TL_LANGUAGE']);
+
+        if ($translatedElement->numRows < 1) {
+            return $buffer;
+        }
+
+        $originalElement = Database::getInstance()->prepare('SELECT rsce_data FROM tl_content WHERE tl_content.id=?')->execute($element->id);
+
+        if ($originalElement->numRows < 1) {
+            return $buffer;
+        }
+
+        $originalElement->next();
+
+        $rsceData = \json_decode($originalElement->rsce_data, true);
+        $translatedRsceData = json_decode($element->rsce_data, true);
+
+        foreach ($translatedRsceData as $field => $value) {
+            $rsceData[$field] = $value;
+        }
+
+        $element->rsce_data = \json_encode($rsceData);
+
+        return $element->generate();
     }
 }
