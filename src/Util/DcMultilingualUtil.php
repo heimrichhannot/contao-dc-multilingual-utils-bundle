@@ -10,6 +10,7 @@ namespace HeimrichHannot\DcMultilingualUtilsBundle\Util;
 
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -99,6 +100,28 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         {
             unset($fieldDca['save_callback']);
         }
+    }
+
+    public function removeDcMultilingualSupport(
+        string $table
+    ) {
+        $this->container->get('huh.utils.dca')->loadDc($table);
+
+        $dca                = &$GLOBALS['TL_DCA'][$table];
+        $languageColumnName = $dca['config']['langColumnName'];
+        $langPid            = $dca['config']['langPid'];
+
+        $dca['config']['dataContainer'] = 'Table';
+        unset($dca['config']['languages']);
+        unset($dca['config']['fallbackLang']);
+
+        unset($dca['config']['langColumnName']);
+        unset($dca['fields'][$languageColumnName]);
+        unset($dca['config']['sql']['keys'][$languageColumnName]);
+
+        unset($dca['config']['langPid']);
+        unset($dca['config']['sql']['keys'][$langPid]);
+        unset($dca['fields'][$langPid]);;
     }
 
     public function addPublishFieldsFor(string $table, array $options = [])
@@ -221,5 +244,47 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
 
             return $fields;
         }
+    }
+
+    public function getTranslatableLanguages($table)
+    {
+        $dca = &$GLOBALS['TL_DCA'][$table];
+
+        if (isset($dca['config']['languages'])) {
+            $translatableLangs = $dca['config']['languages'];
+        } else {
+            $translatableLangs = $this->getRootPageLanguages();
+        }
+
+        // Fallback language
+        if (isset($dca['config']['fallbackLang'])) {
+            $fallbackLang = $dca['config']['fallbackLang'];
+
+            if (!in_array($fallbackLang, $translatableLangs)) {
+                $translatableLangs[] = $fallbackLang;
+            }
+        }
+
+        return $translatableLangs;
+    }
+
+    public function getRootPageLanguages()
+    {
+        $pages  = Database::getInstance()->execute("SELECT DISTINCT language FROM tl_page WHERE type='root' AND language!=''");
+        $languages = $pages->fetchEach('language');
+
+        array_walk(
+            $languages,
+            function (&$value) {
+                $value = str_replace('-', '_', $value);
+            }
+        );
+
+        return $languages;
+    }
+
+    public function getSessionKey($table, $id)
+    {
+        return 'dc_multilingual:' . $table . ':' . $id;
     }
 }
