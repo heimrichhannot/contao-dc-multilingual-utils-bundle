@@ -25,7 +25,7 @@ class ContentModel extends Multilingual
      */
     public static function findPublishedByPidAndTable($intPid, $strParentTable, array $arrOptions=array())
     {
-        $t = 't1';
+        $t = 'translation';
 
         // Also handle empty ptable fields
         if ($strParentTable == 'tl_article')
@@ -62,7 +62,7 @@ class ContentModel extends Multilingual
      */
     public static function countPublishedByPidAndTable($intPid, $strParentTable, array $arrOptions=array())
     {
-        $t = 't1';
+        $t = 'translation';
 
         // Also handle empty ptable fields (backwards compatibility)
         if ($strParentTable == 'tl_article')

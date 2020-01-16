@@ -24,8 +24,7 @@
   "autoload": {
     "psr-4": {
       "HeimrichHannot\\DcMultilingualUtilsBundle\\": "src/",
-      "Contao\\": "src/Contao/",
-      "Terminal42\\DcMultilingualBundle\\Model\\": "src/Terminal42/"
+      "Contao\\": "src/Contao/"
     },
     "classmap": [
       "src/"
