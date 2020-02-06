@@ -90,16 +90,11 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         }
     }
 
-    public function addDcMultilingualTranslatableAliasEval(array &$fieldDca, string $translatableFor = '*', string $aliasField = 'title', bool $skipRemoveSaveCallbacks = false)
+    public function addDcMultilingualTranslatableAliasEval(array &$fieldDca, string $translatableFor = '*', string $aliasField = 'title')
     {
         $fieldDca['eval']['translatableFor']        = $translatableFor;
         $fieldDca['eval']['isMultilingualAlias']    = true;
         $fieldDca['eval']['generateAliasFromField'] = $aliasField;
-
-        if (!$skipRemoveSaveCallbacks)
-        {
-            unset($fieldDca['save_callback']);
-        }
     }
 
     public function removeDcMultilingualSupport(
