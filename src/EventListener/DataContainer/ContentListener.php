@@ -61,10 +61,10 @@ class ContentListener implements FrameworkAwareInterface, ContainerAwareInterfac
         }
     }
 
-    public function prepareRsceData($row, $buffer, $element)
+    public function prepareRsceData(&$element, $return)
     {
         if ($GLOBALS['TL_DCA']['tl_content']['config']['fallbackLang'] === $GLOBALS['TL_LANGUAGE']) {
-            return $buffer;
+            return $return;
         }
 
         $langPid = $GLOBALS['TL_DCA']['tl_content']['config']['langPid'] ?? 'langPid';
@@ -72,19 +72,19 @@ class ContentListener implements FrameworkAwareInterface, ContainerAwareInterfac
         $rsceConfig = CustomElements::getConfigByType($element->type);
 
         if (!is_array($rsceConfig) || empty($rsceConfig)) {
-            return $buffer;
+            return $return;
         }
 
         $translatedElement = Database::getInstance()->prepare('SELECT rsce_data FROM tl_content WHERE tl_content.' . $langPid . '=? AND tl_content.language=?')->execute($element->id, $GLOBALS['TL_LANGUAGE']);
 
         if ($translatedElement->numRows < 1) {
-            return $buffer;
+            return $return;
         }
 
         $originalElement = Database::getInstance()->prepare('SELECT rsce_data FROM tl_content WHERE tl_content.id=?')->execute($element->id);
 
         if ($originalElement->numRows < 1) {
-            return $buffer;
+            return $return;
         }
 
         $originalElement->next();
@@ -98,6 +98,6 @@ class ContentListener implements FrameworkAwareInterface, ContainerAwareInterfac
 
         $element->rsce_data = \json_encode($rsceData);
 
-        return $element->generate();
+        return $return;
     }
 }
