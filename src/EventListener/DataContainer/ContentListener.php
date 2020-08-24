@@ -11,7 +11,6 @@ namespace HeimrichHannot\DcMultilingualUtilsBundle\EventListener\DataContainer;
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\Database;
-use MadeYourDay\RockSolidCustomElements\CustomElements;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -44,6 +43,10 @@ class ContentListener implements FrameworkAwareInterface, ContainerAwareInterfac
 
     public function setTranslateAbleCustomContentElementFields($dc)
     {
+        if (!class_exists('MadeYourDay\RockSolidCustomElements\CustomElements')) {
+            return;
+        }
+
         $allowedFields     = [];
         $allowedInputTypes = ['rsce_list_start', 'rsce_list_stop', 'rsce_list_item_start', 'rsce_list_item_stop', 'rsce_group_start', 'rsce_list_hidden'];
 
@@ -63,6 +66,10 @@ class ContentListener implements FrameworkAwareInterface, ContainerAwareInterfac
 
     public function prepareRsceData(&$element, $return)
     {
+        if (!class_exists('MadeYourDay\RockSolidCustomElements\CustomElements')) {
+            return $return;
+        }
+
         if ($GLOBALS['TL_DCA']['tl_content']['config']['fallbackLang'] === $GLOBALS['TL_LANGUAGE']) {
             return $return;
         }
