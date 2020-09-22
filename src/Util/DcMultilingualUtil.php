@@ -15,6 +15,7 @@ use Contao\DataContainer;
 use Contao\System;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Terminal42\ChangeLanguage\PageFinder;
 
 class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInterface
 {
@@ -281,5 +282,19 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
     public function getSessionKey($table, $id)
     {
         return 'dc_multilingual:' . $table . ':' . $id;
+    }
+
+    public function getAssociatedPage($idOrAlias, string $language) {
+        try {
+            $pageFinder = new PageFinder();
+            $currentPage = $this->container->get('huh.utils.model')->callModelMethod('tl_page', 'findByIdOrAlias', $idOrAlias);
+
+            return $pageFinder->findAssociatedForLanguage($currentPage, $language);
+        } catch (\RuntimeException $e) {
+
+        }
+
+        // parent page of current page not found or not published
+        return false;
     }
 }

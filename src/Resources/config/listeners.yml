@@ -1,4 +1,8 @@
 services:
+  _defaults:
+    public: true
+    autowire: true
+
   _instanceof:
     Contao\CoreBundle\Framework\FrameworkAwareInterface:
       calls:
@@ -9,5 +13,5 @@ services:
 
   huh.dc_multilingual_utils.event_listener.data_container.content_listener:
     class: HeimrichHannot\DcMultilingualUtilsBundle\EventListener\DataContainer\ContentListener
-    public: true
-    autowire: true
+
+  HeimrichHannot\DcMultilingualUtilsBundle\EventListener\InsertTagListener: ~

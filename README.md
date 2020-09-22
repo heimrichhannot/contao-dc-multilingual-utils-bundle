@@ -7,6 +7,7 @@ This bundle offers functionality concerning [terminal42/contao-DC_Multilingual](
 - adds multilanguage support for tl_content
 - adds shortcut functions for rapidly activating DC_Multilingual support for a given DCA
 - adds multilanguage support for [madeyourday/contao-rocksolid-custom-elements](https://github.com/madeyourday/contao-rocksolid-custom-elements)
+- adds insert tags for generating multilingual event, news or faq urls
 
 ## Installation
 
@@ -29,6 +30,16 @@ System::getContainer()->get('huh.dc_multilingual_utils.util.dc_multilingual_util
 ```
 
 ## Technical details
+
+### Insert tags
+
+The following new tags are available:
+
+Name | Example
+-----|--------
+`{{dcmu_news_url::<id>::<language>}}` | `{{dcmu_news_url::1::de}}`
+`{{dcmu_event_url::<id>::<language>}}` | `{{dcmu_event_url::5::es}}`
+`{{dcmu_faq_url::<id>::<language>}}` | `{{dcmu_faq_url::8::en}}`
 
 ### Activate DC_Multilingual rapidly using the shortcut functions
 
