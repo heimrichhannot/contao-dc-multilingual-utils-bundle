@@ -8,6 +8,7 @@ This bundle offers functionality concerning [terminal42/contao-DC_Multilingual](
 - adds shortcut functions for rapidly activating DC_Multilingual support for a given DCA
 - adds multilanguage support for [madeyourday/contao-rocksolid-custom-elements](https://github.com/madeyourday/contao-rocksolid-custom-elements)
 - adds insert tags for generating multilingual event, news or faq urls
+- **caution**: overrides the id handling of DC_Multilingual v4+ to the v3 behavior (the record with the joined translation has its id set to the id of the translation record)
 
 ## Installation
 
