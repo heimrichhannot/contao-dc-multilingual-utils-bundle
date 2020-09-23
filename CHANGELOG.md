@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+[0.7.1] - 2020-09-23
+- added alias for DcMultilingualUtil in service.yml
+
 [0.7.0] - 2020-09-23
 - overridden dc_multilingual v4+ id handling of translated records
 

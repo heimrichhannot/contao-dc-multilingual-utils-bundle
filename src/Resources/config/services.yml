@@ -12,6 +12,9 @@ services:
     public: true
     autowire: true
 
+  HeimrichHannot\DcMultilingualUtilsBundle\Util\DcMultilingualUtil:
+    public: false
+
   terminal42.dc_multilingual.querybuilder_factory:
     class: HeimrichHannot\DcMultilingualUtilsBundle\QueryBuilder\MultilingualQueryBuilderFactory
     public: true
