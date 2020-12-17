@@ -105,7 +105,10 @@ class InsertTagListener
                 $url = $this->stringUtil->replaceInsertTags('{{changelanguage_link_url::' . $archive->jumpTo . '::' . $language . '}}');
 
                 // alias
-                if ($dca['fields']['alias']['eval']['isMultilingualAlias'] ?? false) {
+                if (isset($dca['fields']['alias']['eval']['translatableFor']) && (
+                    $dca['fields']['alias']['eval']['translatableFor'] === '*' ||
+                    in_array($language, explode(',', $dca['fields']['alias']['eval']['translatableFor'])))
+                ) {
                     $langName = $dca['config']['langColumnName'];
                     $langPidName = $dca['config']['langPid'];
 
