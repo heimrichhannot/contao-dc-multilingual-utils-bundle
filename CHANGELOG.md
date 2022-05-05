@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+[0.8.0] - 2022-05-05
+- Changed: minimum contao version is now 4.13
+
 [0.7.2] - 2020-12-17
 - fixed insert tags for translatable alias
 
