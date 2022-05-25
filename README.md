@@ -15,19 +15,23 @@ This bundle offers functionality concerning [terminal42/contao-DC_Multilingual](
 1. Install via composer: `composer require heimrichhannot/contao-dc-multilingual-utils-bundle`.
 2. Activate `DC_Multilingual` support for `tl_content` (not optional):
 
-```
-// This is typically placed in your project bundle tl_content.php
-// See below for a full reference of addDcMultilingualSupport()
+```php
+/**
+ * @Hook("loadDataContainer")
+ */
+class LoadDataContainerListener
+{
+    private DcMultilingualUtil $multilingualUtil;
 
-System::getContainer()->get('huh.dc_multilingual_utils.util.dc_multilingual_util')->addDcMultilingualSupport(
-    'tl_content',
-    ['de', 'en', 'pl'],
-    'de',
-    [
-        'text', // add fields here...
-        'rsce_data' // add this if you have rocksolid custom elements
-    ]
-);
+    public function __invoke(string $table): void
+    {
+        if ('tl_content' === $table) {
+            $this->multilingualUtil->addDcMultilingualSupport(
+                $table, ['de', 'en', 'pl'], 'de', [ 'text', 'rsce_data' ] 
+            );
+        }
+    }
+}
 ```
 
 ## Technical details
@@ -44,20 +48,36 @@ Name | Example
 
 ### Activate DC_Multilingual rapidly using the shortcut functions
 
-Simply call the following code in your DCA file:
+Simply call the following code:
 
-```
-System::getContainer()->get('huh.dc_multilingual_utils.util.dc_multilingual_util')->addDcMultilingualSupport(
-    'tl_calendar_events', // table name
-    ['de', 'en', 'pl'], // supported languages
-    'de', // fallback language
-    ['title', 'subTitle'], // the translatable fields
-    // options
-    [
-        'langColumnName', // the language field in the dca's records (you have a record for every language and this column holds which one it is)
-        'langPid', // this field holds the parent record of every translated record
-    ]
-);
+```php
+/**
+ * @Hook("loadDataContainer")
+ */
+class LoadDataContainerListener
+{
+    private DcMultilingualUtil $multilingualUtil;
+
+    public function __invoke(string $table): void
+    {
+        if ('tl_content' === $table) {
+            $this->multilingualUtil->addDcMultilingualSupport(
+                $table, // Table name
+                ['de', 'en', 'pl'], // Supported languages
+                'de', // Fallback language
+                [ // the translatable fields
+                    'text', // add fields here...
+                    'rsce_data' // add this if you have rocksolid custom elements (tl_content only)
+                ],
+                [ // options
+                    'langColumnName', // the language field in the dca's records (you have a record for every language and this column holds which one it is)
+                    'langPid', // this field holds the parent record of every translated record
+                ]
+            );
+            break;
+        }
+    }
+}
 ```
 
 ### Notes on overridden classes
@@ -65,7 +85,7 @@ System::getContainer()->get('huh.dc_multilingual_utils.util.dc_multilingual_util
 For generating content elements which respect the multilanguage records created using DC_Multilingual in the backend,
 it's necessary to override the `ContentModel`, because Contao calls the core's ContentModel directly in `Controller`:
 
-`$objRow = \ContentModel::findByPk($intId);`
+`$objRow = ContentModel::findByPk($intId);`
 
 But for getting Contao to output the *translated* Elements, we need to use our own `ContentModel` inheriting from the class
 `Terminal42\DcMultilingualBundle\Model\Multilingual/Multilingual`.

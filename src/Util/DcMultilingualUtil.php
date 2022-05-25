@@ -8,13 +8,17 @@
 
 namespace HeimrichHannot\DcMultilingualUtilsBundle\Util;
 
+use Contao\Controller;
 use Contao\CoreBundle\Framework\FrameworkAwareInterface;
 use Contao\CoreBundle\Framework\FrameworkAwareTrait;
 use Contao\Database;
 use Contao\DataContainer;
+use Contao\Input;
 use Contao\System;
+use HeimrichHannot\UtilsBundle\Util\Utils;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Terminal42\ChangeLanguage\PageFinder;
 
 class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInterface
@@ -26,6 +30,15 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         'tl_news' => 'huh.dc_multilingual_utils.data_container.news',
         'tl_calendar_events' => 'huh.dc_multilingual_utils.data_container.calendar_events',
     ];
+    private Utils            $utils;
+    private SessionInterface $session;
+
+    public function __construct(Utils $utils, SessionInterface $session)
+    {
+        $this->utils = $utils;
+        $this->session = $session;
+    }
+
 
     /**
      * Adds terminal42/dc_multilingual support for a given data container.
@@ -43,7 +56,8 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         array $fields = [],
         array $options = []
     ) {
-        $this->container->get('huh.utils.dca')->loadDc($table);
+
+        Controller::loadDataContainer($table);
 
         $dca                = &$GLOBALS['TL_DCA'][$table];
         $languageColumnName = $options['langColumnName'] ?? 'language';
@@ -101,7 +115,7 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
     public function removeDcMultilingualSupport(
         string $table
     ) {
-        $this->container->get('huh.utils.dca')->loadDc($table);
+        Controller::loadDataContainer($table);
 
         $dca                = &$GLOBALS['TL_DCA'][$table];
         $languageColumnName = $dca['config']['langColumnName'];
@@ -120,9 +134,16 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         unset($dca['fields'][$langPid]);;
     }
 
-    public function addPublishFieldsFor(string $table, array $options = [])
+    /**
+     *
+     *
+     * @param string $table
+     * @param array $options
+     * @return void
+     */
+    public function addPublishFieldsFor(string $table, array $options = []): void
     {
-        $this->container->get('huh.utils.dca')->loadDc($table);
+        Controller::loadDataContainer($table);
 
         $dca = &$GLOBALS['TL_DCA'][$table];
 
@@ -130,6 +151,7 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         $startField = $options['langPublished'] ?? 'langStart';
         $stopField = $options['langPublished'] ?? 'langStop';
         $skipStartStop = $options['skipStartStop'] ?? false;
+
 
         // add the fields for the install tool
         $dca['fields'] += $this->getPublishFields(false, $options);
@@ -143,12 +165,11 @@ class DcMultilingualUtil implements FrameworkAwareInterface, ContainerAwareInter
         }
 
         // add the callback
-        if ($this->container->get('huh.utils.container')->isBackend() && ($id = $this->container->get('huh.request')->getGet('id')))
+        if ($this->utils->container()->isBackend() && ($id = Input::get('id')))
         {
             $sessionKey = 'dc_multilingual:'.$table.':'.$id;
 
-            /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $objSessionBag */
-            $objSessionBag = $this->container->get('session')->getBag('contao_backend');
+            $objSessionBag = $this->session->getBag('contao_backend');
 
             $language = $objSessionBag->get($sessionKey);
 

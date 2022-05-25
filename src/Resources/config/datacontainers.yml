@@ -1,9 +1,0 @@
-services:
-    _defaults:
-        public: true
-        autowire: true
-
-    huh.dc_multilingual_utils.data_container.news:
-        class: HeimrichHannot\DcMultilingualUtilsBundle\DataContainer\NewsContainer
-    huh.dc_multilingual_utils.data_container.calendar_events:
-        class: HeimrichHannot\DcMultilingualUtilsBundle\DataContainer\CalendarEventsContainer
