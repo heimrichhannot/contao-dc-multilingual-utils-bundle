@@ -1,7 +1,14 @@
 <?php
 
+/*
+ * Copyright (c) 2022 Heimrich & Hannot GmbH
+ *
+ * @license LGPL-3.0-or-later
+ */
+
 namespace HeimrichHannot\DcMultilingualUtilsBundle\EventListener\Contao;
 
+use Contao\Controller;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Contao\Database;
 use Contao\Model;
@@ -18,6 +25,8 @@ class IsVisibleElementListener
             return $isVisible;
         }
 
+        Controller::loadDataContainer('tl_content');
+
         if ($GLOBALS['TL_DCA']['tl_content']['config']['fallbackLang'] === $GLOBALS['TL_LANGUAGE']) {
             return $isVisible;
         }
@@ -26,12 +35,12 @@ class IsVisibleElementListener
 
         $rsceConfig = CustomElements::getConfigByType($element->type);
 
-        if (!is_array($rsceConfig) || empty($rsceConfig)) {
+        if (!\is_array($rsceConfig) || empty($rsceConfig)) {
             return $isVisible;
         }
 
         $translatedElement = Database::getInstance()
-            ->prepare('SELECT rsce_data FROM tl_content WHERE tl_content.' . $langPid . '=? AND tl_content.language=?')
+            ->prepare('SELECT rsce_data FROM tl_content WHERE tl_content.'.$langPid.'=? AND tl_content.language=?')
             ->execute($element->id, $GLOBALS['TL_LANGUAGE']);
 
         if ($translatedElement->numRows < 1) {
@@ -48,14 +57,14 @@ class IsVisibleElementListener
 
         $originalElement->next();
 
-        $rsceData = \json_decode($originalElement->rsce_data, true);
-        $translatedRsceData = \json_decode($element->rsce_data, true);
+        $rsceData = json_decode($originalElement->rsce_data, true);
+        $translatedRsceData = json_decode($element->rsce_data, true);
 
         foreach ($translatedRsceData as $field => $value) {
             $rsceData[$field] = $value;
         }
 
-        $element->rsce_data = \json_encode($rsceData);
+        $element->rsce_data = json_encode($rsceData);
 
         return $isVisible;
     }
