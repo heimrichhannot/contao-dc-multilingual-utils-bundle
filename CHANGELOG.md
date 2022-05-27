@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 [0.8.1] - 2022-05-25
 - Changed: allow php 8
-- Changed: small refactoring
+- Changed: refactored bundle for 4.13
 - Deprecated: huh.dc_multilingual_utils.util.dc_multilingual_util service alias
 
 [0.8.0] - 2022-05-05
