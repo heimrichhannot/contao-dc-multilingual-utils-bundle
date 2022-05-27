@@ -1,7 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-[0.8.1] - 2022-05-25
+[Unreleased] - 2022-05-27
+- Fixed: invalid namespace
+- 
+
+[0.8.1] - 2022-05-27
 - Changed: allow php 8
 - Changed: refactored bundle for 4.13
 - Deprecated: huh.dc_multilingual_utils.util.dc_multilingual_util service alias
