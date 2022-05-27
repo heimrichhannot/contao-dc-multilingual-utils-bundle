@@ -2,11 +2,11 @@
 
 namespace HeimrichHannot\DcMultilingualUtilsBundle\EventListener;
 
+use Contao\CoreBundle\InsertTag\InsertTagParser;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use HeimrichHannot\UtilsBundle\Database\DatabaseUtil;
 use HeimrichHannot\UtilsBundle\Dca\DcaUtil;
-use HeimrichHannot\UtilsBundle\Model\ModelUtil;
-use HeimrichHannot\UtilsBundle\String\StringUtil;
+use HeimrichHannot\UtilsBundle\Util\Utils;
 
 /**
  * @Hook("replaceInsertTags")
@@ -14,32 +14,26 @@ use HeimrichHannot\UtilsBundle\String\StringUtil;
 class InsertTagListener
 {
     /**
-     * @var ModelUtil
-     */
-    private $modelUtil;
-    /**
-     * @var StringUtil
-     */
-    private $stringUtil;
-    /**
      * @var DcaUtil
      */
     private $dcaUtil;
     /**
      * @var DatabaseUtil
      */
-    private $databaseUtil;
+    private                 $databaseUtil;
+    private InsertTagParser $insertTagParser;
+    private Utils           $utils;
 
     public function __construct(
-        ModelUtil $modelUtil,
-        StringUtil $stringUtil,
         DcaUtil $dcaUtil,
-        DatabaseUtil $databaseUtil
+        DatabaseUtil $databaseUtil,
+        InsertTagParser $insertTagParser,
+        Utils $utils
     ) {
-        $this->modelUtil          = $modelUtil;
-        $this->stringUtil         = $stringUtil;
         $this->dcaUtil            = $dcaUtil;
         $this->databaseUtil       = $databaseUtil;
+        $this->insertTagParser = $insertTagParser;
+        $this->utils = $utils;
     }
 
     /**
@@ -76,23 +70,23 @@ class InsertTagListener
                 $entity    = $tagData[1];
                 $language = $tagData[2];
 
-                if (null === ($entityObj = $this->modelUtil->findModelInstanceByPk($table, $entity))) {
+                if (null === ($entityObj = $this->utils->model()->findModelInstanceByPk($table, $entity))) {
                     return false;
                 }
 
                 if (!$this->dcaUtil->isDcMultilingual($table)) {
-                    return $this->stringUtil->replaceInsertTags('{{' . $type . '_url::' . $entityObj->id . '}}');
+                    return $this->insertTagParser->replace('{{' . $type . '_url::' . $entityObj->id . '}}');
                 }
 
                 $dca = $GLOBALS['TL_DCA'][$table];
 
                 $ptable = $dca['config']['ptable'];
 
-                if (null === ($archive = $this->modelUtil->findOneModelInstanceBy($ptable, [$ptable . '.id=?'], [$entityObj->pid]))) {
+                if (null === ($archive = $this->utils->model()->findOneModelInstanceBy($ptable, [$ptable . '.id=?'], [$entityObj->pid]))) {
                     return false;
                 }
 
-                $url = $this->stringUtil->replaceInsertTags('{{changelanguage_link_url::' . $archive->jumpTo . '::' . $language . '}}');
+                $url = $this->insertTagParser->replace('{{changelanguage_link_url::' . $archive->jumpTo . '::' . $language . '}}');
 
                 // alias
                 if (isset($dca['fields']['alias']['eval']['translatableFor']) && (
