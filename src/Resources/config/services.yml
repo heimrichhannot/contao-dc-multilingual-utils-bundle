@@ -7,13 +7,15 @@ services:
       calls:
       - ["setContainer", ["@service_container"]]
 
-  huh.dc_multilingual_utils.util.dc_multilingual_util:
-    class: HeimrichHannot\DcMultilingualUtilsBundle\Util\DcMultilingualUtil
-    public: true
+  HeimrichHannot\DcMultilingualUtilsBundle\:
+    resource: '../../{DataContainer,EventListener,Util}'
+    autoconfigure: true
     autowire: true
 
-  HeimrichHannot\DcMultilingualUtilsBundle\Util\DcMultilingualUtil:
-    public: false
+  huh.dc_multilingual_utils.util.dc_multilingual_util:
+    alias: 'HeimrichHannot\DcMultilingualUtilsBundle\Util\DcMultilingualUtil'
+    public: true
+    deprecated: "Using service alias %alias_id% is deprecated and will be removed in a feature version!"
 
   terminal42.dc_multilingual.querybuilder_factory:
     class: HeimrichHannot\DcMultilingualUtilsBundle\QueryBuilder\MultilingualQueryBuilderFactory

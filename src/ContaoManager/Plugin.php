@@ -24,7 +24,10 @@ class Plugin implements BundlePluginInterface, ConfigPluginInterface
     public function getBundles(ParserInterface $parser)
     {
         return [
-            BundleConfig::create(ContaoDcMultilingualUtilsBundle::class)->setLoadAfter([ContaoCoreBundle::class]),
+            BundleConfig::create(ContaoDcMultilingualUtilsBundle::class)
+                ->setLoadAfter([
+                    ContaoCoreBundle::class,
+                ]),
         ];
     }
 
@@ -38,8 +41,6 @@ class Plugin implements BundlePluginInterface, ConfigPluginInterface
      */
     public function registerContainerConfiguration(LoaderInterface $loader, array $managerConfig)
     {
-        $loader->load('@ContaoDcMultilingualUtilsBundle/Resources/config/datacontainers.yml');
         $loader->load('@ContaoDcMultilingualUtilsBundle/Resources/config/services.yml');
-        $loader->load('@ContaoDcMultilingualUtilsBundle/Resources/config/listeners.yml');
     }
 }
