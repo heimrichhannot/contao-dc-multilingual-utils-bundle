@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+[0.8.3] - 2022-06-09
+- Fixed: missing service exception
+
 [0.8.2] - 2022-05-27
 - Fixed: invalid namespace
 - Fixed: warning in php 8

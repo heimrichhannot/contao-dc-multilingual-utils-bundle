@@ -11,6 +11,7 @@ services:
     resource: '../../{DataContainer,EventListener,Util}'
     autoconfigure: true
     autowire: true
+    public: true
 
   huh.dc_multilingual_utils.util.dc_multilingual_util:
     alias: 'HeimrichHannot\DcMultilingualUtilsBundle\Util\DcMultilingualUtil'
