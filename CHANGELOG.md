@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+[0.8.4] - 2023-04-04
+- Fixed: avoid null argument
+
 [0.8.3] - 2022-06-09
 - Fixed: missing service exception
 

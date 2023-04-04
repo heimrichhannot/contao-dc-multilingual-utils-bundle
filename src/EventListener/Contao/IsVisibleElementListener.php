@@ -33,7 +33,7 @@ class IsVisibleElementListener
 
         $langPid = $GLOBALS['TL_DCA']['tl_content']['config']['langPid'] ?? 'langPid';
 
-        $rsceConfig = CustomElements::getConfigByType($element->type);
+        $rsceConfig = CustomElements::getConfigByType($element->type ?: '');
 
         if (!\is_array($rsceConfig) || empty($rsceConfig)) {
             return $isVisible;
